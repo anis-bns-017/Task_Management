@@ -6,6 +6,8 @@ export default function AddTask({ onTaskAdded }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [category, setCategory] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,7 +19,7 @@ export default function AddTask({ onTaskAdded }) {
     }
 
     try {
-      await axios.post("/tasks", { title, description });
+      await axios.post("/tasks", { title, description, dueDate, category });
       setTitle("");
       setDescription("");
       if (onTaskAdded) onTaskAdded();
@@ -38,6 +40,25 @@ export default function AddTask({ onTaskAdded }) {
         onChange={(e) => setTitle(e.target.value)}
         required
       />
+      <input
+        type="date"
+        className="border p-2 rounded w-full mt-2"
+        value={dueDate}
+        onChange={(e) => setDueDate(e.target.value)}
+      />
+
+      <select
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        className="border p-2 rounded"
+      >
+        <option value="">Select Category</option>
+        <option value="Work">Work</option>
+        <option value="Personal">Personal</option>
+        <option value="Study">Study</option>
+        <option value="Shopping">Shopping</option>
+        <option value="Others">Others</option>
+      </select>
 
       <textarea
         placeholder="Task Description (optional)"

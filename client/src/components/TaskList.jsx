@@ -10,6 +10,7 @@ export default function TaskList({ refreshKey }) {
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editStatus, setEditStatus] = useState("pending");
+  const [editTags, setEditTags] = useState("");
 
   const fetchTasks = async () => {
     try {
@@ -31,6 +32,7 @@ export default function TaskList({ refreshKey }) {
     setEditTitle(task.title);
     setEditDescription(task.description || "");
     setEditStatus(task.status);
+    setEditTags((task.tags || []).join(", "));
   };
 
   const cancelEditing = () => {
@@ -38,11 +40,17 @@ export default function TaskList({ refreshKey }) {
   };
 
   const saveEdit = async (id) => {
+    const tagArray = editTags
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter((tag) => tag !== "");
+
     try {
       await axios.put(`/tasks/${id}`, {
         title: editTitle,
         description: editDescription,
         status: editStatus,
+        tags: tagArray,
       });
       setEditingTaskId(null);
       fetchTasks();
@@ -78,11 +86,13 @@ export default function TaskList({ refreshKey }) {
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
               className="border p-2 rounded"
+              placeholder="Task Title"
             />
             <textarea
               value={editDescription}
               onChange={(e) => setEditDescription(e.target.value)}
               className="border p-2 rounded"
+              placeholder="Description"
             />
             <select
               value={editStatus}
@@ -93,6 +103,14 @@ export default function TaskList({ refreshKey }) {
               <option value="in-progress">In Progress</option>
               <option value="completed">Completed</option>
             </select>
+
+            <input
+              type="text"
+              value={editTags}
+              onChange={(e) => setEditTags(e.target.value)}
+              className="border p-2 rounded"
+              placeholder="Tags (comma-separated)"
+            />
 
             <div className="flex space-x-2">
               <button
@@ -117,9 +135,27 @@ export default function TaskList({ refreshKey }) {
             <div>
               <h3 className="font-semibold">{task.title}</h3>
               <p className="text-sm text-gray-600">{task.description}</p>
+              {task.dueDate && (
+                <p className="text-sm text-gray-500">
+                  Due: {new Date(task.dueDate).toLocaleDateString()}
+                </p>
+              )}
+              <p className="text-sm text-gray-600">Category: {task.category}</p>
               <p className="text-xs mt-1">
                 Status: <span className="font-medium">{task.status}</span>
               </p>
+              {task.tags && task.tags.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {task.tags.map((tag, idx) => (
+                    <span
+                      key={idx}
+                      className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="space-x-2">
               <button

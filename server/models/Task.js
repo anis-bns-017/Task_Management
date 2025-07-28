@@ -7,6 +7,8 @@ const taskSchema = new mongoose.Schema(
       required: true,
     },
     description: String,
+    dueDate: Date, // ✅ Add this
+    category: String, // ✅ Add this
     status: {
       type: String,
       enum: ["pending", "in-progress", "completed"],
@@ -14,9 +16,10 @@ const taskSchema = new mongoose.Schema(
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", 
+      ref: "User",
       required: true,
     },
+    tags: [{ type: String }],
   },
   { timestamps: true }
 );

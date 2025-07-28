@@ -1,10 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TaskList from "../components/TaskList";
 import AddTask from "../components/AddTask";
 import React from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 export default function Dashboard() {
   const [refresh, setRefresh] = useState(false);
+
+  useEffect(() => {
+  const fetchReminders = async () => {
+    try {
+      const { data } = await axios.get("/tasks/reminders");
+      if (data.length > 0) {
+        toast.success(`You have ${data.length} task(s) due soon!`);
+      }
+    } catch (error) {
+      console.error("Error fetching reminders", error);
+    }
+  };
+
+  fetchReminders();
+}, []);
 
   return (
     <div className="max-w-3xl mx-auto mt-8 p-4">
