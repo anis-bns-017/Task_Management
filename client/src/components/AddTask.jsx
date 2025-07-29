@@ -8,6 +8,7 @@ export default function AddTask({ onTaskAdded }) {
   const [error, setError] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [category, setCategory] = useState("");
+  const [tags, setTags] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,9 +20,18 @@ export default function AddTask({ onTaskAdded }) {
     }
 
     try {
-      await axios.post("/tasks", { title, description, dueDate, category });
+      await axios.post("/tasks", {
+        title,
+        description,
+        dueDate,
+        category,
+        tags: tags.split(",").map((tag) => tag.trim()),
+      });
       setTitle("");
       setDescription("");
+      setDueDate("");
+      setCategory("");
+      setTags("");
       if (onTaskAdded) onTaskAdded();
     } catch (err) {
       setError("Failed to add task");
@@ -59,6 +69,14 @@ export default function AddTask({ onTaskAdded }) {
         <option value="Shopping">Shopping</option>
         <option value="Others">Others</option>
       </select>
+
+      <input
+        type="text"
+        placeholder="Tags (comma-separated)"
+        value={tags}
+        onChange={(e) => setTags(e.target.value)}
+        className="border p-2 m-2 rounded"
+      />
 
       <textarea
         placeholder="Task Description (optional)"

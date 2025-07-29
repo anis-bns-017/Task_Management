@@ -11,21 +11,23 @@ import ProtectedRoute from "./components/ProtectedRoute";
 const App = () => {
   return (
     <>
-      <Navbar />
-      <Toaster position="top-center" reverseOrder={false} />
-      <div className="p-4">
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Routes>
+      <div className="min-h-screen bg-gray-100">
+        <Navbar />
+        <Toaster position="top-center" reverseOrder={false} />
+        <div className="p-4">
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Routes>
+        </div>
       </div>
     </>
   );

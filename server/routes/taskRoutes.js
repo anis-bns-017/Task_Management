@@ -7,7 +7,7 @@ const router = express.Router();
 router.use(protect);
 
 router.post("/", createTask);
-router.get("/", getTasks);
+router.get("/", protect, getTasks);
 router.put("/:id", updateTask);
 router.delete("/:id", deleteTask);
 router.get("/reminders", protect, getReminders);

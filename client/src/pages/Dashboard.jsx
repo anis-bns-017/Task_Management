@@ -9,19 +9,18 @@ export default function Dashboard() {
   const [refresh, setRefresh] = useState(false);
 
   useEffect(() => {
-  const fetchReminders = async () => {
-    try {
-      const { data } = await axios.get("/tasks/reminders");
-      if (data.length > 0) {
-        toast.success(`You have ${data.length} task(s) due soon!`);
+    const fetchReminders = async () => {
+      try {
+        const { data } = await axios.get("/tasks/reminders");
+        if (!data || data.length === 0) return;
+         
+      } catch (error) {
+        console.error("Error fetching reminders", error);
       }
-    } catch (error) {
-      console.error("Error fetching reminders", error);
-    }
-  };
+    };
 
-  fetchReminders();
-}, []);
+    fetchReminders();
+  }, []);
 
   return (
     <div className="max-w-3xl mx-auto mt-8 p-4">

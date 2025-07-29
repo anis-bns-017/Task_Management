@@ -11,11 +11,13 @@ export default function TaskList({ refreshKey }) {
   const [editDescription, setEditDescription] = useState("");
   const [editStatus, setEditStatus] = useState("pending");
   const [editTags, setEditTags] = useState("");
+  const [editCategory, setEditCategory] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchTasks = async () => {
     try {
-      const res = await axios.get("/tasks");
-      setTasks(res.data);
+      const { data } = await axios.get(`/tasks?search=${searchTerm}`);
+      setTasks(data);
     } catch (err) {
       setError("Failed to load tasks");
     } finally {
@@ -33,6 +35,7 @@ export default function TaskList({ refreshKey }) {
     setEditDescription(task.description || "");
     setEditStatus(task.status);
     setEditTags((task.tags || []).join(", "));
+    setEditCategory(task.category || "");
   };
 
   const cancelEditing = () => {
@@ -50,8 +53,14 @@ export default function TaskList({ refreshKey }) {
         title: editTitle,
         description: editDescription,
         status: editStatus,
+        category: editCategory,
         tags: tagArray,
       });
+      setEditTitle("");
+      setEditDescription("");
+      setEditStatus("pending");
+      setEditTags("");
+      setEditCategory("");
       setEditingTaskId(null);
       fetchTasks();
     } catch (err) {
@@ -69,13 +78,32 @@ export default function TaskList({ refreshKey }) {
     }
   };
 
+  const filteredTasks = tasks.filter((task) => {
+    const term = searchTerm.toLowerCase();
+    const inTitle = task.title?.toLowerCase().includes(term);
+    const inCategory = task.category?.toLowerCase().includes(term);
+    const inTags = (task.tags || []).some((tag) =>
+      tag.toLowerCase().includes(term)
+    );
+    return inTitle || inCategory || inTags;
+  });
+
   if (loading) return <p>Loading tasks...</p>;
   if (error) return <p className="text-red-600">{error}</p>;
-  if (tasks.length === 0) return <p>No tasks yet. Add your first task!</p>;
+  if (filteredTasks.length === 0)
+    return <p>No tasks yet. Add your first task!</p>;
 
   return (
     <div className="space-y-4">
-      {tasks.map((task) =>
+      <input
+        type="text"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        placeholder="Search by title, category, or tag..."
+        className="border p-2 rounded w-full mb-4"
+      />
+
+      {filteredTasks.map((task) =>
         editingTaskId === task._id ? (
           <div
             key={task._id}
@@ -103,7 +131,13 @@ export default function TaskList({ refreshKey }) {
               <option value="in-progress">In Progress</option>
               <option value="completed">Completed</option>
             </select>
-
+            <input
+              type="text"
+              value={editCategory}
+              onChange={(e) => setEditCategory(e.target.value)}
+              placeholder="Edit category"
+              className="border p-2 rounded"
+            />
             <input
               type="text"
               value={editTags}
@@ -111,7 +145,6 @@ export default function TaskList({ refreshKey }) {
               className="border p-2 rounded"
               placeholder="Tags (comma-separated)"
             />
-
             <div className="flex space-x-2">
               <button
                 onClick={() => saveEdit(task._id)}
@@ -145,11 +178,11 @@ export default function TaskList({ refreshKey }) {
                 Status: <span className="font-medium">{task.status}</span>
               </p>
               {task.tags && task.tags.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 mt-2">
                   {task.tags.map((tag, idx) => (
                     <span
                       key={idx}
-                      className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full"
+                      className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded"
                     >
                       #{tag}
                     </span>
